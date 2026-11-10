@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Sonavia Audio Test</title>
+<style>
+  body { font-family: monospace; background: #0a0a18; color: #a5b4fc; padding: 30px; }
+  h1 { color: #fff; }
+  .card { background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3); border-radius: 12px; padding: 20px; margin: 10px 0; }
+  button { background: #4f46e5; color: white; border: none; padding: 8px 18px; border-radius: 8px; cursor: pointer; margin: 4px; font-size: 14px; }
+  button:hover { background: #6366f1; }
+  .ok { color: #6ee7b7; } .err { color: #f87171; } .info { color: #fde68a; }
+  audio { width: 100%; margin-top: 8px; }
+  pre { background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>🎵 Sonavia Audio Diagnostic</h1>
+
+<div class="card">
+  <h3>Test 1 – Direct HTTP (no Vite proxy)</h3>
+  <p class="info">Phát thẳng từ <code>http://127.0.0.1:8000/media/generated/...</code></p>
+  <div id="direct-list">Loading...</div>
+</div>
+
+<div class="card">
+  <h3>Test 2 – Blob URL (như frontend tạo)</h3>
+  <p class="info">Fetch file qua HTTP, tạo blob: URL rồi phát</p>
+  <button onclick="testBlob()">▶ Fetch & Play as Blob</button>
+  <div id="blob-result"></div>
+  <audio id="blob-audio" controls></audio>
+</div>
+
+<div class="card">
+  <h3>Test 3 – API Call (như generateSingleTrack)</h3>
+  <p class="info">POST /api/music/generate/ với prompt test (sẽ mất nhiều phút nếu thực sự generate)</p>
+  <button onclick="testGenerateApi()">▶ Test API Headers</button>
+  <div id="api-result"></div>
+</div>
+
+<div class="card">
+  <h3>Console Log</h3>
+  <pre id="log"></pre>
+</div>
+
+<script>
+const log = (msg, cls='') => {
+  const pre = document.getElementById('log')
+  const span = document.createElement('span')
+  span.className = cls
+  span.textContent = msg + '\n'
+  pre.appendChild(span)
+  console.log(msg)
+}
+
+// --- Test 1: Detect available files ---
+async function detectFiles() {
+  log('Đang tìm file trong /media/generated/ ...')
+  const knownFiles = [
+    'sonavia_vi_rock_688535268_de3aa0.mp3',
+    'sonavia_vi_vpop_719172552_bc2a1e.mp3',
+    'sonavia_en_lofi_123456_f42434.mp3',
+    'sonavia_ko_kpop_173256923_626504.mp3',
+    'sonavia_vi_vpop_409417735_4bfca3.mp3',
+    'sonavia_vi_vpop_782548503_da61de.mp3',
+  ]
+  const list = document.getElementById('direct-list')
+  list.innerHTML = ''
+  for (const f of knownFiles) {
+    const url = `http://127.0.0.1:8000/media/generated/${f}`
+    try {
+      const res = await fetch(url, { method: 'HEAD' })
+      if (res.ok) {
+        const size = res.headers.get('Content-Length')
+        const ct = res.headers.get('Content-Type')
+        const ar = res.headers.get('Accept-Ranges')
+        log(`✅ ${f} — ${Number(size).toLocaleString()} bytes | ${ct} | AR:${ar}`, 'ok')
+        list.innerHTML += `
+          <div style="margin:8px 0">
+            <b class="ok">✅ ${f}</b> (${Number(size).toLocaleString()} bytes)<br>
+            <audio src="${url}" controls preload="metadata" style="width:100%;margin-top:4px"></audio>
+          </div>`
+      } else {
+        log(`❌ ${f} — HTTP ${res.status}`, 'err')
+      }
+    } catch(e) {
+      log(`❌ ${f} — ${e.message}`, 'err')
+    }
+  }
+}
+
+async function testBlob() {
+  const files = [
+    'sonavia_vi_rock_688535268_de3aa0.mp3',
+    'sonavia_vi_vpop_719172552_bc2a1e.mp3',
+  ]
+  const r = document.getElementById('blob-result')
+  r.innerHTML = ''
+  for (const f of files) {
+    const url = `http://127.0.0.1:8000/media/generated/${f}`
+    log(`Fetching ${f} as blob...`)
+    try {
+      const res = await fetch(url)
+      const blob = await res.blob()
+      log(`Blob: size=${blob.size} type=${blob.type}`, blob.size > 1000 ? 'ok' : 'err')
+      const blobUrl = URL.createObjectURL(blob)
+      r.innerHTML += `<div><b>${f}</b> – blob size: ${blob.size.toLocaleString()}, type: ${blob.type}<br>
+        <audio src="${blobUrl}" controls preload="metadata" style="width:100%;margin:4px 0"></audio></div>`
+    } catch(e) {
+      log(`❌ Blob error: ${e.message}`, 'err')
+      r.innerHTML += `<div class="err">Lỗi: ${e.message}</div>`
+    }
+  }
+}
+
+async function testGenerateApi() {
+  const result = document.getElementById('api-result')
+  result.innerHTML = '<span class="info">Đang gọi API... (chỉ test headers, không generate thật)</span>'
+  try {
+    // Test recover API (không generate)
+    const res = await fetch('http://127.0.0.1:8000/api/ai/acestep/recover/?seed=688535268')
+    const data = await res.json()
+    log(`Recover API: ${JSON.stringify(data)}`, data.found ? 'ok' : 'err')
+    result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`
+    if (data.found && data.audio_url) {
+      result.innerHTML += `<audio src="http://127.0.0.1:8000${data.audio_url}" controls preload="metadata" style="width:100%"></audio>`
+    }
+  } catch(e) {
+    log(`API Error: ${e.message}`, 'err')
+    result.innerHTML = `<span class="err">Lỗi: ${e.message} — Backend đang chạy chưa?</span>`
+  }
+}
+
+detectFiles()
+</script>
+</body>
+</html>

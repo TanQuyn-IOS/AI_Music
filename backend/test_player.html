@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Test Sonavia Audio Player</title>
+</head>
+<body style="background: #111; color: #eee; font-family: sans-serif; padding: 20px;">
+    <h2>Sonavia Audio Diagnostic Player</h2>
+
+    <p>Test 1: Phát qua Vite proxy (http://localhost:5173/media/generated/sonavia_vi_rock_688535268_de3aa0.mp3)</p>
+    <audio id="audio1" controls preload="metadata" src="http://localhost:5173/media/generated/sonavia_vi_rock_688535268_de3aa0.mp3"></audio>
+    <div id="log1">Status: Ready</div>
+
+    <hr style="margin: 20px 0; border-color: #333;">
+
+    <p>Test 2: Phát trực tiếp qua Backend (http://localhost:8000/media/generated/sonavia_vi_rock_688535268_de3aa0.mp3)</p>
+    <audio id="audio2" controls preload="metadata" src="http://localhost:8000/media/generated/sonavia_vi_rock_688535268_de3aa0.mp3"></audio>
+    <div id="log2">Status: Ready</div>
+
+    <script>
+        function hook(id, logId) {
+            const a = document.getElementById(id);
+            const l = document.getElementById(logId);
+            a.addEventListener('play', () => l.innerText = 'Playing...');
+            a.addEventListener('pause', () => l.innerText = 'Paused');
+            a.addEventListener('loadedmetadata', () => l.innerText = 'Metadata loaded, duration: ' + a.duration + 's');
+            a.addEventListener('error', (e) => {
+                const err = a.error;
+                l.innerHTML = '<span style="color:red">ERROR: code=' + err.code + ', message=' + err.message + '</span>';
+                console.error(id, err);
+            });
+        }
+        hook('audio1', 'log1');
+        hook('audio2', 'log2');
+    </script>
+</body>
+</html>

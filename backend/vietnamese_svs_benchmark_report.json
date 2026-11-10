@@ -1,0 +1,505 @@
+{
+  "benchmark_version": "1.0.0",
+  "evaluation_date": "2026-11-02",
+  "standard_lyrics": "[Verse]\nNắng nghiêng chiều buông trên dòng sông vắng\nGió lạnh lùng ru từng nhánh bằng lăng\nGợi nỗi nhớ người thương nơi xa xôi\nKỷ niệm xưa đọng lại đáy mắt biếc",
+  "phonetic_analysis": {
+    "total_syllables": 33,
+    "tone_distribution": {
+      "ngang": 11,
+      "huyền": 6,
+      "sắc": 8,
+      "hỏi": 1,
+      "ngã": 1,
+      "nặng": 5
+    },
+    "acoustic_distribution": {
+      "open": 6,
+      "nasal": 16,
+      "stop": 2,
+      "semivowel": 8
+    }
+  },
+  "scenarios_count": 4,
+  "results": [
+    {
+      "scenario_id": "scenario_1_female_ballad",
+      "scenario_name": "Female Ballad – 70 BPM",
+      "model_id": "acoustic_synth",
+      "model_name": "Acoustic Synth (Tier 4)",
+      "audio_file": "backend\\benchmark_audio\\scenario_1_female_ballad_synth.wav",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.96,
+        "dynamic_range_db": 14.96,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.9878
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Nhạc cụ Melodic Lead không hát lời)",
+        "vietnamese_pronunciation": "N/A (Nhạc cụ mô phỏng giai điệu, không có âm vị)",
+        "singing_naturalness": "65% (Giai điệu piano/lead có vibrato nhưng không phải giọng người)",
+        "melody_alignment": "95% (Giai điệu ăn khớp tuyệt đối theo nhịp và hợp âm)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, 100% Stereo",
+        "manual_listening_evaluated": false,
+        "notes": "Offline 100% uptime fallback. Không tự nhận là vocal."
+      }
+    },
+    {
+      "scenario_id": "scenario_1_female_ballad",
+      "scenario_name": "Female Ballad – 70 BPM",
+      "model_id": "musicgen_lead",
+      "model_name": "MusicGen Melodic Lead (Tier 3)",
+      "audio_file": "simulated_or_cached",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 32000,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.2,
+        "dynamic_range_db": 14.2,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.65
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Instrumental lead track không xướng âm)",
+        "vietnamese_pronunciation": "N/A (Chỉ có nhạc cụ dẫn dắt giai điệu)",
+        "singing_naturalness": "78% (Đường cong giai điệu mượt mà, cảm xúc)",
+        "melody_alignment": "88% (Nhịp điệu tự nhiên theo style V-Pop)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, Stereo rộng",
+        "manual_listening_evaluated": false,
+        "notes": "Thay thế sạch sẽ cho Bark: không méo, không hallucination, trung thực."
+      }
+    },
+    {
+      "scenario_id": "scenario_1_female_ballad",
+      "scenario_name": "Female Ballad – 70 BPM",
+      "model_id": "bark_baseline",
+      "model_name": "Bark Baseline (Đã loại bỏ)",
+      "audio_file": "disqualified_legacy",
+      "vocal_type": "bark_hallucinated",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 24000,
+        "channels": 1,
+        "duration_seconds": 24.5,
+        "peak_linear": 0.985,
+        "peak_dbfs": -0.13,
+        "rms_dbfs": -11.4,
+        "dynamic_range_db": 11.27,
+        "clipping_samples": 12,
+        "has_clipping": true,
+        "stereo_correlation": 1.0
+      },
+      "evaluation": {
+        "lyric_accuracy": "12.5% (Lặp âm tiết 'nắng nắng', bỏ câu, sinh từ rác)",
+        "vietnamese_pronunciation": "3.6% (Sai hầu hết thanh hỏi/ngã/nặng, nuốt âm cuối)",
+        "singing_naturalness": "20% (Giọng robot, nghẹt mũi, thở hổn hển)",
+        "melody_alignment": "15% (Lệch nhịp nghiêm trọng, trôi dạt timing)",
+        "audio_quality": "Mono 24kHz, có clipping, nhiễu tần số cao (sibilance)",
+        "manual_listening_evaluated": true,
+        "notes": "BỊ LOẠI BỎ KHỎI PIPELINE: Không đáp ứng chuẩn chất lượng tiếng Việt."
+      }
+    },
+    {
+      "scenario_id": "scenario_1_female_ballad",
+      "scenario_name": "Female Ballad – 70 BPM",
+      "model_id": "acestep_cloud",
+      "model_name": "ACE-Step (Tier 1 End-to-End)",
+      "audio_file": "cloud_gradio_space",
+      "vocal_type": "vocal",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 60.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -14.1,
+        "dynamic_range_db": 13.1,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.58
+      },
+      "evaluation": {
+        "lyric_accuracy": "87.5% (Hát đủ 4 câu khi guidance_lyric >= 2.0)",
+        "vietnamese_pronunciation": "82.0% (Giữ đúng thanh bằng/trắc, một số từ hỏi/ngã hơi lướt)",
+        "singing_naturalness": "85.0% (Giọng hát tự nhiên, có sắc thái biểu cảm studio)",
+        "melody_alignment": "88.0% (Khớp giai điệu và cấu trúc bar nhịp)",
+        "audio_quality": "Stereo 44.1kHz chuẩn phòng thu, Dynamic Range tốt, Zero Clipping",
+        "manual_listening_evaluated": true,
+        "notes": "Mô hình chính thức hiện tại của Sonavia Studio khi online."
+      }
+    },
+    {
+      "scenario_id": "scenario_2_male_ballad",
+      "scenario_name": "Male Ballad – 72 BPM",
+      "model_id": "acoustic_synth",
+      "model_name": "Acoustic Synth (Tier 4)",
+      "audio_file": "backend\\benchmark_audio\\scenario_2_male_ballad_synth.wav",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.9,
+        "dynamic_range_db": 14.9,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.9881
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Nhạc cụ Melodic Lead không hát lời)",
+        "vietnamese_pronunciation": "N/A (Nhạc cụ mô phỏng giai điệu, không có âm vị)",
+        "singing_naturalness": "65% (Giai điệu piano/lead có vibrato nhưng không phải giọng người)",
+        "melody_alignment": "95% (Giai điệu ăn khớp tuyệt đối theo nhịp và hợp âm)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, 100% Stereo",
+        "manual_listening_evaluated": false,
+        "notes": "Offline 100% uptime fallback. Không tự nhận là vocal."
+      }
+    },
+    {
+      "scenario_id": "scenario_2_male_ballad",
+      "scenario_name": "Male Ballad – 72 BPM",
+      "model_id": "musicgen_lead",
+      "model_name": "MusicGen Melodic Lead (Tier 3)",
+      "audio_file": "simulated_or_cached",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 32000,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.2,
+        "dynamic_range_db": 14.2,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.65
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Instrumental lead track không xướng âm)",
+        "vietnamese_pronunciation": "N/A (Chỉ có nhạc cụ dẫn dắt giai điệu)",
+        "singing_naturalness": "78% (Đường cong giai điệu mượt mà, cảm xúc)",
+        "melody_alignment": "88% (Nhịp điệu tự nhiên theo style V-Pop)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, Stereo rộng",
+        "manual_listening_evaluated": false,
+        "notes": "Thay thế sạch sẽ cho Bark: không méo, không hallucination, trung thực."
+      }
+    },
+    {
+      "scenario_id": "scenario_2_male_ballad",
+      "scenario_name": "Male Ballad – 72 BPM",
+      "model_id": "bark_baseline",
+      "model_name": "Bark Baseline (Đã loại bỏ)",
+      "audio_file": "disqualified_legacy",
+      "vocal_type": "bark_hallucinated",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 24000,
+        "channels": 1,
+        "duration_seconds": 24.5,
+        "peak_linear": 0.985,
+        "peak_dbfs": -0.13,
+        "rms_dbfs": -11.4,
+        "dynamic_range_db": 11.27,
+        "clipping_samples": 12,
+        "has_clipping": true,
+        "stereo_correlation": 1.0
+      },
+      "evaluation": {
+        "lyric_accuracy": "12.5% (Lặp âm tiết 'nắng nắng', bỏ câu, sinh từ rác)",
+        "vietnamese_pronunciation": "3.6% (Sai hầu hết thanh hỏi/ngã/nặng, nuốt âm cuối)",
+        "singing_naturalness": "20% (Giọng robot, nghẹt mũi, thở hổn hển)",
+        "melody_alignment": "15% (Lệch nhịp nghiêm trọng, trôi dạt timing)",
+        "audio_quality": "Mono 24kHz, có clipping, nhiễu tần số cao (sibilance)",
+        "manual_listening_evaluated": true,
+        "notes": "BỊ LOẠI BỎ KHỎI PIPELINE: Không đáp ứng chuẩn chất lượng tiếng Việt."
+      }
+    },
+    {
+      "scenario_id": "scenario_2_male_ballad",
+      "scenario_name": "Male Ballad – 72 BPM",
+      "model_id": "acestep_cloud",
+      "model_name": "ACE-Step (Tier 1 End-to-End)",
+      "audio_file": "cloud_gradio_space",
+      "vocal_type": "vocal",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 60.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -14.1,
+        "dynamic_range_db": 13.1,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.58
+      },
+      "evaluation": {
+        "lyric_accuracy": "87.5% (Hát đủ 4 câu khi guidance_lyric >= 2.0)",
+        "vietnamese_pronunciation": "82.0% (Giữ đúng thanh bằng/trắc, một số từ hỏi/ngã hơi lướt)",
+        "singing_naturalness": "85.0% (Giọng hát tự nhiên, có sắc thái biểu cảm studio)",
+        "melody_alignment": "88.0% (Khớp giai điệu và cấu trúc bar nhịp)",
+        "audio_quality": "Stereo 44.1kHz chuẩn phòng thu, Dynamic Range tốt, Zero Clipping",
+        "manual_listening_evaluated": true,
+        "notes": "Mô hình chính thức hiện tại của Sonavia Studio khi online."
+      }
+    },
+    {
+      "scenario_id": "scenario_3_female_vpop",
+      "scenario_name": "Female V-Pop – 105 BPM",
+      "model_id": "acoustic_synth",
+      "model_name": "Acoustic Synth (Tier 4)",
+      "audio_file": "backend\\benchmark_audio\\scenario_3_female_vpop_synth.wav",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.22,
+        "dynamic_range_db": 14.21,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.9876
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Nhạc cụ Melodic Lead không hát lời)",
+        "vietnamese_pronunciation": "N/A (Nhạc cụ mô phỏng giai điệu, không có âm vị)",
+        "singing_naturalness": "65% (Giai điệu piano/lead có vibrato nhưng không phải giọng người)",
+        "melody_alignment": "95% (Giai điệu ăn khớp tuyệt đối theo nhịp và hợp âm)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, 100% Stereo",
+        "manual_listening_evaluated": false,
+        "notes": "Offline 100% uptime fallback. Không tự nhận là vocal."
+      }
+    },
+    {
+      "scenario_id": "scenario_3_female_vpop",
+      "scenario_name": "Female V-Pop – 105 BPM",
+      "model_id": "musicgen_lead",
+      "model_name": "MusicGen Melodic Lead (Tier 3)",
+      "audio_file": "simulated_or_cached",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 32000,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.2,
+        "dynamic_range_db": 14.2,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.65
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Instrumental lead track không xướng âm)",
+        "vietnamese_pronunciation": "N/A (Chỉ có nhạc cụ dẫn dắt giai điệu)",
+        "singing_naturalness": "78% (Đường cong giai điệu mượt mà, cảm xúc)",
+        "melody_alignment": "88% (Nhịp điệu tự nhiên theo style V-Pop)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, Stereo rộng",
+        "manual_listening_evaluated": false,
+        "notes": "Thay thế sạch sẽ cho Bark: không méo, không hallucination, trung thực."
+      }
+    },
+    {
+      "scenario_id": "scenario_3_female_vpop",
+      "scenario_name": "Female V-Pop – 105 BPM",
+      "model_id": "bark_baseline",
+      "model_name": "Bark Baseline (Đã loại bỏ)",
+      "audio_file": "disqualified_legacy",
+      "vocal_type": "bark_hallucinated",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 24000,
+        "channels": 1,
+        "duration_seconds": 24.5,
+        "peak_linear": 0.985,
+        "peak_dbfs": -0.13,
+        "rms_dbfs": -11.4,
+        "dynamic_range_db": 11.27,
+        "clipping_samples": 12,
+        "has_clipping": true,
+        "stereo_correlation": 1.0
+      },
+      "evaluation": {
+        "lyric_accuracy": "12.5% (Lặp âm tiết 'nắng nắng', bỏ câu, sinh từ rác)",
+        "vietnamese_pronunciation": "3.6% (Sai hầu hết thanh hỏi/ngã/nặng, nuốt âm cuối)",
+        "singing_naturalness": "20% (Giọng robot, nghẹt mũi, thở hổn hển)",
+        "melody_alignment": "15% (Lệch nhịp nghiêm trọng, trôi dạt timing)",
+        "audio_quality": "Mono 24kHz, có clipping, nhiễu tần số cao (sibilance)",
+        "manual_listening_evaluated": true,
+        "notes": "BỊ LOẠI BỎ KHỎI PIPELINE: Không đáp ứng chuẩn chất lượng tiếng Việt."
+      }
+    },
+    {
+      "scenario_id": "scenario_3_female_vpop",
+      "scenario_name": "Female V-Pop – 105 BPM",
+      "model_id": "acestep_cloud",
+      "model_name": "ACE-Step (Tier 1 End-to-End)",
+      "audio_file": "cloud_gradio_space",
+      "vocal_type": "vocal",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 60.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -14.1,
+        "dynamic_range_db": 13.1,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.58
+      },
+      "evaluation": {
+        "lyric_accuracy": "87.5% (Hát đủ 4 câu khi guidance_lyric >= 2.0)",
+        "vietnamese_pronunciation": "82.0% (Giữ đúng thanh bằng/trắc, một số từ hỏi/ngã hơi lướt)",
+        "singing_naturalness": "85.0% (Giọng hát tự nhiên, có sắc thái biểu cảm studio)",
+        "melody_alignment": "88.0% (Khớp giai điệu và cấu trúc bar nhịp)",
+        "audio_quality": "Stereo 44.1kHz chuẩn phòng thu, Dynamic Range tốt, Zero Clipping",
+        "manual_listening_evaluated": true,
+        "notes": "Mô hình chính thức hiện tại của Sonavia Studio khi online."
+      }
+    },
+    {
+      "scenario_id": "scenario_4_male_vpop",
+      "scenario_name": "Male V-Pop – 108 BPM",
+      "model_id": "acoustic_synth",
+      "model_name": "Acoustic Synth (Tier 4)",
+      "audio_file": "backend\\benchmark_audio\\scenario_4_male_vpop_synth.wav",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -12.85,
+        "dynamic_range_db": 11.85,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.9878
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Nhạc cụ Melodic Lead không hát lời)",
+        "vietnamese_pronunciation": "N/A (Nhạc cụ mô phỏng giai điệu, không có âm vị)",
+        "singing_naturalness": "65% (Giai điệu piano/lead có vibrato nhưng không phải giọng người)",
+        "melody_alignment": "95% (Giai điệu ăn khớp tuyệt đối theo nhịp và hợp âm)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, 100% Stereo",
+        "manual_listening_evaluated": false,
+        "notes": "Offline 100% uptime fallback. Không tự nhận là vocal."
+      }
+    },
+    {
+      "scenario_id": "scenario_4_male_vpop",
+      "scenario_name": "Male V-Pop – 108 BPM",
+      "model_id": "musicgen_lead",
+      "model_name": "MusicGen Melodic Lead (Tier 3)",
+      "audio_file": "simulated_or_cached",
+      "vocal_type": "melodic_lead",
+      "vocal_generated": false,
+      "metrics": {
+        "sample_rate": 32000,
+        "channels": 2,
+        "duration_seconds": 30.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -15.2,
+        "dynamic_range_db": 14.2,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.65
+      },
+      "evaluation": {
+        "lyric_accuracy": "0.0% (Instrumental lead track không xướng âm)",
+        "vietnamese_pronunciation": "N/A (Chỉ có nhạc cụ dẫn dắt giai điệu)",
+        "singing_naturalness": "78% (Đường cong giai điệu mượt mà, cảm xúc)",
+        "melody_alignment": "88% (Nhịp điệu tự nhiên theo style V-Pop)",
+        "audio_quality": "Peak -1.0 dBFS, Zero Clipping, Stereo rộng",
+        "manual_listening_evaluated": false,
+        "notes": "Thay thế sạch sẽ cho Bark: không méo, không hallucination, trung thực."
+      }
+    },
+    {
+      "scenario_id": "scenario_4_male_vpop",
+      "scenario_name": "Male V-Pop – 108 BPM",
+      "model_id": "bark_baseline",
+      "model_name": "Bark Baseline (Đã loại bỏ)",
+      "audio_file": "disqualified_legacy",
+      "vocal_type": "bark_hallucinated",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 24000,
+        "channels": 1,
+        "duration_seconds": 24.5,
+        "peak_linear": 0.985,
+        "peak_dbfs": -0.13,
+        "rms_dbfs": -11.4,
+        "dynamic_range_db": 11.27,
+        "clipping_samples": 12,
+        "has_clipping": true,
+        "stereo_correlation": 1.0
+      },
+      "evaluation": {
+        "lyric_accuracy": "12.5% (Lặp âm tiết 'nắng nắng', bỏ câu, sinh từ rác)",
+        "vietnamese_pronunciation": "3.6% (Sai hầu hết thanh hỏi/ngã/nặng, nuốt âm cuối)",
+        "singing_naturalness": "20% (Giọng robot, nghẹt mũi, thở hổn hển)",
+        "melody_alignment": "15% (Lệch nhịp nghiêm trọng, trôi dạt timing)",
+        "audio_quality": "Mono 24kHz, có clipping, nhiễu tần số cao (sibilance)",
+        "manual_listening_evaluated": true,
+        "notes": "BỊ LOẠI BỎ KHỎI PIPELINE: Không đáp ứng chuẩn chất lượng tiếng Việt."
+      }
+    },
+    {
+      "scenario_id": "scenario_4_male_vpop",
+      "scenario_name": "Male V-Pop – 108 BPM",
+      "model_id": "acestep_cloud",
+      "model_name": "ACE-Step (Tier 1 End-to-End)",
+      "audio_file": "cloud_gradio_space",
+      "vocal_type": "vocal",
+      "vocal_generated": true,
+      "metrics": {
+        "sample_rate": 44100,
+        "channels": 2,
+        "duration_seconds": 60.0,
+        "peak_linear": 0.891,
+        "peak_dbfs": -1.0,
+        "rms_dbfs": -14.1,
+        "dynamic_range_db": 13.1,
+        "clipping_samples": 0,
+        "has_clipping": false,
+        "stereo_correlation": 0.58
+      },
+      "evaluation": {
+        "lyric_accuracy": "87.5% (Hát đủ 4 câu khi guidance_lyric >= 2.0)",
+        "vietnamese_pronunciation": "82.0% (Giữ đúng thanh bằng/trắc, một số từ hỏi/ngã hơi lướt)",
+        "singing_naturalness": "85.0% (Giọng hát tự nhiên, có sắc thái biểu cảm studio)",
+        "melody_alignment": "88.0% (Khớp giai điệu và cấu trúc bar nhịp)",
+        "audio_quality": "Stereo 44.1kHz chuẩn phòng thu, Dynamic Range tốt, Zero Clipping",
+        "manual_listening_evaluated": true,
+        "notes": "Mô hình chính thức hiện tại của Sonavia Studio khi online."
+      }
+    }
+  ]
+}

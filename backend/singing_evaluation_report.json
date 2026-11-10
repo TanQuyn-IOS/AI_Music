@@ -1,0 +1,60 @@
+{
+  "run1": {
+    "file_name": "test_singing_run1_370a00.wav",
+    "size_bytes": 3968044,
+    "sample_rate": 32000,
+    "channels": 2,
+    "duration_s": 31.0,
+    "peak_linear": 0.891,
+    "true_peak_dbfs": -1.0,
+    "rms_dbfs": -16.47,
+    "dynamic_range_db": 15.47,
+    "clipped_samples": 0,
+    "is_clipping": false,
+    "stereo_correlation": 0.992,
+    "sub_bass_db": -46.29,
+    "presence_db": -40.31,
+    "harshness_db": -54.0,
+    "header_validation": {
+      "is_riff": true,
+      "is_wave": true,
+      "is_pcm_16bit": true
+    }
+  },
+  "run2": {
+    "file_name": "test_singing_run2_d298dc.wav",
+    "size_bytes": 5120044,
+    "sample_rate": 32000,
+    "channels": 2,
+    "duration_s": 40.0,
+    "peak_linear": 0.891,
+    "true_peak_dbfs": -1.0,
+    "rms_dbfs": -17.65,
+    "dynamic_range_db": 16.64,
+    "clipped_samples": 0,
+    "is_clipping": false,
+    "stereo_correlation": 0.991,
+    "sub_bass_db": -46.31,
+    "presence_db": -39.36,
+    "harshness_db": -60.0,
+    "header_validation": {
+      "is_riff": true,
+      "is_wave": true,
+      "is_pcm_16bit": true
+    }
+  },
+  "asr_findings": {
+    "run1_transcript": "Bầu trị, xin xe hổ kênh, vô chiến xe xe xe... (repeating xe)",
+    "run1_tone_retention_pct": 3.6,
+    "run2_transcript": "Nguu đồng của Nguu hành Hành Hành Hành... (repeating Hành)",
+    "run2_tone_retention_pct": 0.0,
+    "root_cause": "Bark BPE tokenizer decomposes Vietnamese diacritic UTF-8 characters into multi-byte fragments, which causes severe cross-entropy explosion, loss of semantic trajectory, and repetitive looping when combined with musical tags (♪) and default temperature (0.7)."
+  },
+  "http_tests": {
+    "full_200_status": 200,
+    "full_content_type": "audio/wav",
+    "range_206_status": 206,
+    "range_content_range": "bytes 0-1023/3968044",
+    "range_content_length": 1024
+  }
+}
