@@ -310,41 +310,50 @@ class MusicGenerateUnifiedView(APIView):
         import uuid
         import base64
         import logging
+        import traceback
         from django.http import HttpResponse
         from django.conf import settings
-        from apps.ai_engine.orchestrator import sonavia_orchestrator
 
         logger = logging.getLogger(__name__)
 
-        prompt             = request.data.get("prompt", "").strip()
-        language           = request.data.get("language", "auto").strip()
-        vocal              = request.data.get("vocal", "auto").strip()
         try:
-            duration       = int(float(request.data.get("duration") or 180))
-        except (ValueError, TypeError):
-            duration       = 180
-        seed               = str(request.data.get("seed", "")).strip()
-        custom_lyrics      = request.data.get("custom_lyrics", "").strip()
-        instrumental       = bool(request.data.get("instrumental", False))
-        try:
-            guidance       = float(request.data.get("guidance_scale") or 14.5)
-        except (ValueError, TypeError):
-            guidance       = 14.5
-        try:
-            infer_steps    = int(float(request.data.get("infer_steps") or 60))
-        except (ValueError, TypeError):
-            infer_steps    = 60
-        preferred_provider = request.data.get("preferred_provider")
+            from apps.ai_engine.orchestrator import sonavia_orchestrator
 
-        if not prompt:
-            return Response({"error": "Vui lòng nhập mô tả bài hát bạn muốn tạo."}, status=400)
+            prompt             = str(request.data.get("prompt", "") or "").strip()
+            language           = str(request.data.get("language", "auto") or "auto").strip()
+            vocal              = str(request.data.get("vocal", "auto") or "auto").strip()
+            try:
+                duration       = int(float(request.data.get("duration") or 180))
+            except (ValueError, TypeError):
+                duration       = 180
+            seed               = str(request.data.get("seed", "") or "").strip()
+            custom_lyrics      = str(request.data.get("custom_lyrics", "") or "").strip()
+            instrumental       = bool(request.data.get("instrumental", False))
+            try:
+                guidance       = float(request.data.get("guidance_scale") or 14.5)
+            except (ValueError, TypeError):
+                guidance       = 14.5
+            try:
+                infer_steps    = int(float(request.data.get("infer_steps") or 60))
+            except (ValueError, TypeError):
+                infer_steps    = 60
+            preferred_provider = request.data.get("preferred_provider")
 
-        # Ràng buộc tham số
-        duration    = max(15, min(duration, 240))
-        guidance    = max(5.0, min(guidance, 18.0))
-        infer_steps = max(50, min(infer_steps, 80))
+            if not prompt:
+                return Response({
+                    "success": False,
+                    "error": {
+                        "code": "EMPTY_PROMPT",
+                        "message": "Vui lòng nhập mô tả bài hát bạn muốn tạo.",
+                        "stage": "validation"
+                    }
+                }, status=400)
 
-        try:
+            # Ràng buộc tham số
+            duration    = max(15, min(duration, 240))
+            guidance    = max(5.0, min(guidance, 18.0))
+            infer_steps = max(50, min(infer_steps, 80))
+
             result = sonavia_orchestrator.generate_song(
                 prompt=prompt,
                 language=language,

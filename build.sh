@@ -22,3 +22,4 @@ echo "🌱 Seeding initial demo data..."
 python seed_data.py || true
 
 echo "✅ Build completed successfully!"
+

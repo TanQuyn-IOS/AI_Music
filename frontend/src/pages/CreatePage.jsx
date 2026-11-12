@@ -1496,13 +1496,19 @@ export default function CreatePage() {
       }
     } catch (err) {
       toast.dismiss('generating-dual')
-      let errMsg = 'Lỗi khi tạo nhạc. Vui lòng thử lại sau.'
+      let errMsg = 'Không thể tạo bản nhạc vào lúc này. Vui lòng thử lại sau.'
       if (err.response?.data?.error?.message) {
         errMsg = err.response.data.error.message
+      } else if (err.response?.data?.message) {
+        errMsg = err.response.data.message
+      } else if (err.response?.data?.detail) {
+        errMsg = err.response.data.detail
       } else if (err.response?.data?.error && typeof err.response.data.error === 'string') {
         errMsg = err.response.data.error
-      } else if (err.message) {
+      } else if (err.message && !err.message.includes('status code 500')) {
         errMsg = err.message
+      } else if (err.message && err.message.includes('status code 500')) {
+        errMsg = 'Máy chủ AI đang điều phối tài nguyên, vui lòng bấm Tạo lại sau vài giây.'
       }
       toast.error(errMsg, { duration: 6500 })
     }

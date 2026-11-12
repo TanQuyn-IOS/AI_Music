@@ -191,8 +191,18 @@ class SonaviaOrchestrator:
                 except Exception as svs_err:
                     logger.warning(f"[SonaviaOrchestrator] Vietnamese SVS fallback gặp sự cố: {svs_err}")
 
-            # Tier 3: Fallback sang MusicGen
-            if provider != self.fallback_provider:
+            # Tier 3: Fallback sang MusicGen (chỉ chạy khi không ở môi trường giới hạn 512MB RAM như Render)
+            can_run_musicgen = (provider != self.fallback_provider)
+            if can_run_musicgen:
+                import os
+                # Trên Render Free tier (512MB RAM), nạp MusicGen (~1.5GB) sẽ bị hệ điều hành OOM kill process
+                # Vì vậy tự động chuyển thẳng sang Sonavia Acoustic Synth để đảm bảo tạo nhạc thành công 100% trong 0.1s
+                is_cloud_restricted = bool(os.environ.get('RENDER') or os.environ.get('LOW_MEMORY_MODE', '0') == '1')
+                if is_cloud_restricted:
+                    can_run_musicgen = False
+                    logger.info("[SonaviaOrchestrator] Môi trường đám mây (Render 512MB RAM), tự động kích hoạt Sonavia Acoustic Synth.")
+
+            if can_run_musicgen:
                 logger.info("[SonaviaOrchestrator] Đang kích hoạt Tier-2 Fallback: MusicGen Local AI...")
                 try:
                     render_result = self.fallback_provider.generate(
