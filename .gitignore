@@ -42,6 +42,10 @@ backend/checkpoints/
 *.midi
 *.mid
 
+# Static files
+backend/staticfiles/
+staticfiles/
+
 # Node & Frontend
 node_modules/
 frontend/node_modules/

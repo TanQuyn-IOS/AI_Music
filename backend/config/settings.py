@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-aimusic-social-secret-key-
 
 DEBUG = os.getenv('DEBUG', 'True').lower() in {'1', 'true', 'yes', 'on'}
 
-default_allowed_hosts = ['localhost', '127.0.0.1', '[::1]', 'testserver']
+default_allowed_hosts = ['localhost', '127.0.0.1', '[::1]', 'testserver', '.onrender.com', '.vercel.app']
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()] if allowed_hosts_env else default_allowed_hosts
 
@@ -52,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -103,6 +104,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -170,6 +172,8 @@ for origin in CORS_ALLOWED_ORIGINS:
     else:
         CSRF_TRUSTED_ORIGINS.add(f'https://{origin}')
         CSRF_TRUSTED_ORIGINS.add(f'http://{origin}')
+CSRF_TRUSTED_ORIGINS.add('https://*.onrender.com')
+CSRF_TRUSTED_ORIGINS.add('https://*.vercel.app')
 CSRF_TRUSTED_ORIGINS = sorted(CSRF_TRUSTED_ORIGINS)
 
 CORS_EXPOSE_HEADERS = [
