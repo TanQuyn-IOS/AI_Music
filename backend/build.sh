@@ -2,6 +2,11 @@
 # Exit on error
 set -o errexit
 
+if [ -d "backend" ]; then
+    echo "📁 Moving into backend directory..."
+    cd backend
+fi
+
 echo "📦 Installing Python dependencies..."
 pip install --upgrade pip
 pip install -r requirements.txt
