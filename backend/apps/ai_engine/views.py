@@ -1,24 +1,28 @@
-from .header_utils import safe_header_val, safe_content_disposition
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import permissions
-from django.http import HttpResponse
-import threading
-import uuid
-import time as _time
 import logging
-from apps.music.models import Song, ListenHistory
+import os
+import threading
+import time as _time
+import uuid
+
+from django.http import HttpResponse
+from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from apps.music.models import ListenHistory, Song
 from apps.music.serializers import SongSerializer
 
-logger = logging.getLogger(__name__)
+from .chatbot import get_chatbot_response
+from .header_utils import safe_content_disposition, safe_header_val
+from .music_composer import NOTES, PROGRESSIONS, MOOD_TO_TEMPO, generate_lyrics, generate_midi
 from .recommender import (
     get_content_based_recommendations,
-    get_user_based_recommendations,
     get_mood_based_recommendations,
     get_music_profile,
+    get_user_based_recommendations,
 )
-from .chatbot import get_chatbot_response
-from .music_composer import generate_midi, generate_lyrics, NOTES, PROGRESSIONS, MOOD_TO_TEMPO
+
+logger = logging.getLogger(__name__)
 
 
 class RecommendSimilarView(APIView):
@@ -797,7 +801,7 @@ class SmartLyricsGenerateView(APIView):
             elapsed = round(_time.time() - t0, 3)
             logger.info(
                 f"[SmartLyricsGenerateView] Sinh lời thành công: '{result.get('title')}' "
-                f"({result.get('theme')}, {detected_lang}) trong {elapsed}s"
+                f"({result.get('theme')}, {target_lang}) trong {elapsed}s"
             )
             return Response(result)
 

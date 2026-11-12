@@ -1,6 +1,9 @@
+import logging
 import os
-import uuid
 import shutil
+import uuid
+
+logger = logging.getLogger(__name__)
 from rest_framework import generics, permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.views import APIView

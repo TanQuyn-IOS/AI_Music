@@ -11,11 +11,14 @@ Bộ tổng hợp Giọng hát Tiếng Việt Cục bộ (Offline Acoustic Forma
 """
 
 import io
+import logging
 import math
 import numpy as np
 import scipy.signal as signal
 import soundfile as sf
 from typing import List, Dict, Any, Tuple, Optional
+
+logger = logging.getLogger(__name__)
 
 from .vietnamese_phonetics import (
     analyze_lyrics,
