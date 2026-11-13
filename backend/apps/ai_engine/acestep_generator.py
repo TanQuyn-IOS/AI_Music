@@ -424,18 +424,25 @@ def get_client(force_new=False):
             logger.info(f"Using HF token: {masked_tok}")
 
             custom_timeout = httpx.Timeout(180.0, connect=10.0)
-            try:
-                _client = Client(
-                    "ACE-Step/ACE-Step",
-                    token=hf_token if hf_token else None,
-                    verbose=False,
-                    httpx_kwargs={"timeout": custom_timeout}
-                )
-                logger.info("ACE-Step client connected successfully!")
-            except Exception as e:
-                _client = None
+            target_spaces = ["https://ace-step-ace-step.hf.space", "ACE-Step/ACE-Step"]
+            last_err = None
+            for space_target in target_spaces:
+                try:
+                    _client = Client(
+                        space_target,
+                        token=hf_token if hf_token else None,
+                        verbose=False,
+                        httpx_kwargs={"timeout": custom_timeout}
+                    )
+                    logger.info(f"ACE-Step client connected successfully via {space_target}!")
+                    break
+                except Exception as conn_err:
+                    last_err = conn_err
+                    logger.warning(f"Failed connecting to {space_target}: {conn_err}")
+
+            if _client is None:
                 record_acestep_failure(cooldown_seconds=45.0)
-                raise RuntimeError(f"Không thể kết nối đến ACE-Step Space: {e}") from e
+                raise RuntimeError(f"Không thể kết nối đến ACE-Step Space: {last_err}") from last_err
         return _client
 
 
@@ -748,9 +755,11 @@ def generate_with_acestep(
                 time.sleep(2)
                 continue
             else:
+                record_acestep_failure(cooldown_seconds=1800.0)
                 raise last_error
 
     if result is None:
+        record_acestep_failure(cooldown_seconds=1800.0)
         raise last_error
 
     elapsed = time.time() - t0

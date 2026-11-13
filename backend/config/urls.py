@@ -29,18 +29,19 @@ def debug_diagnostic(request):
     except Exception as e:
         res['orchestrator_error'] = f"{type(e).__name__}: {str(e)}"
         res['orchestrator_trace'] = traceback.format_exc()
-    try:
-        from apps.music.views import MusicGenerateUnifiedView
-        from rest_framework.test import APIRequestFactory
-        rf = APIRequestFactory()
-        post_req = rf.post('/api/music/generate/', data={'prompt': 'test'}, format='json')
-        view = MusicGenerateUnifiedView.as_view()
-        response = view(post_req)
-        res['generate_view_status'] = response.status_code
-        res['generate_view_data'] = getattr(response, 'data', str(response.content)[:200])
-    except Exception as e:
-        res['generate_view_error'] = f"{type(e).__name__}: {str(e)}"
-        res['generate_view_trace'] = traceback.format_exc()
+    if request.GET.get('test_gen') == '1':
+        try:
+            from apps.music.views import MusicGenerateUnifiedView
+            from rest_framework.test import APIRequestFactory
+            rf = APIRequestFactory()
+            post_req = rf.post('/api/music/generate/', data={'prompt': 'test'}, format='json')
+            view = MusicGenerateUnifiedView.as_view()
+            response = view(post_req)
+            res['generate_view_status'] = response.status_code
+            res['generate_view_data'] = getattr(response, 'data', str(response.content)[:200])
+        except Exception as e:
+            res['generate_view_error'] = f"{type(e).__name__}: {str(e)}"
+            res['generate_view_trace'] = traceback.format_exc()
     return JsonResponse(res)
 
 

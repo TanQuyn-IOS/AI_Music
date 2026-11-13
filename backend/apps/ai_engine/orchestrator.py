@@ -152,8 +152,11 @@ class SonaviaOrchestrator:
             kwargs["use_acoustic_engine"] = True
         elif preferred_provider == "musicgen" or (instrumental and duration <= 30 and preferred_provider == "local"):
             provider = self.fallback_provider
-        else:
+        elif self.primary_provider.is_available():
             provider = self.primary_provider
+        else:
+            logger.info("[SonaviaOrchestrator] ACE-Step tạm ngắt kết nối (Circuit Breaker), kích hoạt Sonavia Acoustic Synth trực tiếp.")
+            provider = self.synth_provider
 
         try:
             render_result = provider.generate(
@@ -191,16 +194,26 @@ class SonaviaOrchestrator:
                 except Exception as svs_err:
                     logger.warning(f"[SonaviaOrchestrator] Vietnamese SVS fallback gặp sự cố: {svs_err}")
 
-            # Tier 3: Fallback sang MusicGen (chỉ chạy khi không ở môi trường giới hạn 512MB RAM như Render)
+            # Tier 3: Fallback sang MusicGen (chỉ chạy khi có GPU NVIDIA thực thụ, KHÔNG chạy trên CPU để tránh timeout 30s và OOM)
             can_run_musicgen = (provider != self.fallback_provider)
             if can_run_musicgen:
                 import os
-                # Trên Render Free tier (512MB RAM), nạp MusicGen (~1.5GB) sẽ bị hệ điều hành OOM kill process
-                # Vì vậy tự động chuyển thẳng sang Sonavia Acoustic Synth để đảm bảo tạo nhạc thành công 100% trong 0.1s
-                is_cloud_restricted = bool(os.environ.get('RENDER') or os.environ.get('LOW_MEMORY_MODE', '0') == '1')
-                if is_cloud_restricted:
+                has_cuda = False
+                try:
+                    import torch
+                    has_cuda = bool(torch.cuda.is_available())
+                except Exception:
+                    has_cuda = False
+
+                is_cloud_restricted = bool(
+                    os.environ.get('RENDER') or
+                    os.environ.get('RENDER_SERVICE_ID') or
+                    os.environ.get('PORT') or
+                    os.environ.get('LOW_MEMORY_MODE', '0') == '1'
+                )
+                if is_cloud_restricted or not has_cuda:
                     can_run_musicgen = False
-                    logger.info("[SonaviaOrchestrator] Môi trường đám mây (Render 512MB RAM), tự động kích hoạt Sonavia Acoustic Synth.")
+                    logger.info("[SonaviaOrchestrator] Không có CUDA GPU hoặc đang chạy trên Cloud, tự động kích hoạt Sonavia Acoustic Synth.")
 
             if can_run_musicgen:
                 logger.info("[SonaviaOrchestrator] Đang kích hoạt Tier-2 Fallback: MusicGen Local AI...")
