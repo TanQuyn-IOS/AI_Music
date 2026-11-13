@@ -21,6 +21,7 @@ scipy>=1.11.0
 # ACE-Step — HF Space, miễn phí, có giọng hát
 gradio_client>=0.7.0
 httpx>=0.25.0
+requests>=2.31.0
 
 # NOTE: PyTorch CUDA cài riêng:
 # pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124

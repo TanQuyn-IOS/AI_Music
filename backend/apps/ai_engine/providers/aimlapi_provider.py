@@ -9,7 +9,10 @@ Tích hợp trực tiếp các mô hình AI âm nhạc thế hệ mới từ AIM
 import os
 import time
 import logging
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 from typing import Dict, Any, Optional
 from .base_provider import BaseMusicProvider
 
@@ -31,6 +34,8 @@ class AimlapiProvider(BaseMusicProvider):
 
     def is_available(self) -> bool:
         """Kiểm tra xem người dùng đã cung cấp AIMLAPI_KEY chưa."""
+        if requests is None:
+            return False
         self._load_config()
         return bool(self.api_key)
 

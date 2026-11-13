@@ -12,7 +12,10 @@ import io
 import time
 import logging
 import numpy as np
-import soundfile as sf
+try:
+    import soundfile as sf
+except Exception:
+    sf = None
 from typing import Dict, Any, Optional
 from .base_provider import BaseMusicProvider
 from ..music_composer import (
@@ -220,9 +223,20 @@ class AcousticSynthProvider(BaseMusicProvider):
         is_vi = (genre == "vpop" or "vi" in str(lyrics).lower() or any(c in str(lyrics) for c in 'áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđĐ'))
         mastered_audio = master_audio_array(stereo_audio, sr, is_vietnamese=is_vi, vocal_boost_db=1.5, target_peak=0.891)
 
-        # 5. Xuất ra tệp WAV
+        # 5. Xuất ra tệp WAV (Hỗ trợ kép soundfile và scipy wavfile)
         buf = io.BytesIO()
-        sf.write(buf, mastered_audio, sr, format='WAV')
+        try:
+            if sf is not None:
+                sf.write(buf, mastered_audio, sr, format='WAV')
+            else:
+                raise RuntimeError("soundfile không khả dụng, kích hoạt scipy fallback.")
+        except Exception as write_err:
+            logger.info(f"[AcousticSynthProvider] Chuyển sang scipy.io.wavfile: {write_err}")
+            from scipy.io import wavfile
+            buf = io.BytesIO()
+            scaled = np.clip(mastered_audio, -1.0, 1.0)
+            int16_audio = (scaled * 32767.0).astype(np.int16)
+            wavfile.write(buf, sr, int16_audio)
         audio_bytes = buf.getvalue()
         elapsed = round(time.time() - t0, 2)
 

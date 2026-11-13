@@ -13,7 +13,10 @@ giọng hát tiếng Việt phòng thu 100% như trên Suno.com:
 import os
 import time
 import logging
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
 from typing import Dict, Any, Optional
 from .base_provider import BaseMusicProvider
 
@@ -41,6 +44,8 @@ class SunoProvider(BaseMusicProvider):
 
     def is_available(self) -> bool:
         """Kiểm tra xem người dùng đã cấu hình SUNO_COOKIE hoặc SUNO_API_KEY chưa."""
+        if requests is None:
+            return False
         self._load_config()
         return bool(self.cookie or self.api_key)
 
