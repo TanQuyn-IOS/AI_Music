@@ -71,23 +71,24 @@ class TestPhase22ARemoveBark(unittest.TestCase):
         """Khi tạo bài hát tiếng Việt qua Orchestrator, tuyệt đối không được gọi Bark."""
         dummy_wav = self._create_dummy_wav(2.0)
 
-        with patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep") as mock_acestep:
-            mock_acestep.return_value = {
-                "audio_bytes": dummy_wav,
-                "duration": 60,
-                "elapsed": 2.0,
-                "prompt": "V-Pop ballad",
-                "seed": "12345",
-                "lyrics": self.benchmark_lyrics,
-            }
+        with patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True):
+            with patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep") as mock_acestep:
+                mock_acestep.return_value = {
+                    "audio_bytes": dummy_wav,
+                    "duration": 60,
+                    "elapsed": 2.0,
+                    "prompt": "V-Pop ballad",
+                    "seed": "12345",
+                    "lyrics": self.benchmark_lyrics,
+                }
 
-            res = sonavia_orchestrator.generate_song(
-                prompt="Bài hát V-Pop ballad về hoàng hôn",
-                language="vi",
-                custom_lyrics=self.benchmark_lyrics,
-                vocal="female",
-                duration=60,
-            )
+                res = sonavia_orchestrator.generate_song(
+                    prompt="Bài hát V-Pop ballad về hoàng hôn",
+                    language="vi",
+                    custom_lyrics=self.benchmark_lyrics,
+                    vocal="female",
+                    duration=60,
+                )
 
             # Khẳng định Bark hoàn toàn không bị gọi
             mock_gen_vocal.assert_not_called()

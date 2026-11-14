@@ -67,6 +67,27 @@ class SonaviaOrchestrator:
         if has_vietnamese_lyrics and effective_language in ("auto", "en", ""):
             effective_language = "vi"
 
+        # Kiểm tra xung đột ngôn ngữ: Nếu người dùng chọn tiếng Hàn (ko), Nhật (ja), Trung (zh)
+        # nhưng custom_lyrics lại là tiếng Việt (do ảnh tự động sinh ca từ tiếng Việt ban đầu):
+        has_hangul = bool(custom_lyrics and any('\uac00' <= ch <= '\ud7af' for ch in custom_lyrics))
+        has_kana = bool(custom_lyrics and any('\u3040' <= ch <= '\u30ff' for ch in custom_lyrics))
+        has_hanzi = bool(custom_lyrics and any('\u4e00' <= ch <= '\u9fff' for ch in custom_lyrics))
+
+        lyrics_lang_mismatch = False
+        if effective_language == "ko" and has_vietnamese_lyrics and not has_hangul:
+            lyrics_lang_mismatch = True
+        elif effective_language == "ja" and has_vietnamese_lyrics and not has_kana:
+            lyrics_lang_mismatch = True
+        elif effective_language == "zh" and has_vietnamese_lyrics and not has_hanzi:
+            lyrics_lang_mismatch = True
+
+        if lyrics_lang_mismatch:
+            logger.warning(
+                f"[SonaviaOrchestrator] Ca từ gửi kèm là tiếng Việt nhưng người dùng chọn ngôn ngữ '{effective_language}'. "
+                f"Tự động sinh lại ca từ chuẩn {effective_language.upper()}."
+            )
+            custom_lyrics = ""
+
         # ── 1. PHÂN TÍCH PROMPT ──
         config = PromptAnalyzerService.analyze(
             prompt=clean_prompt,
@@ -155,8 +176,27 @@ class SonaviaOrchestrator:
         elif self.primary_provider.is_available():
             provider = self.primary_provider
         else:
-            logger.info("[SonaviaOrchestrator] ACE-Step tạm ngắt kết nối (Circuit Breaker), kích hoạt Sonavia Acoustic Synth trực tiếp.")
-            provider = self.synth_provider
+            # ACE-Step không khả dụng: Nếu có GPU NVIDIA CUDA thì ưu tiên chạy MusicGen GPU trước, sau đó mới đến Acoustic Synth
+            import os
+            has_cuda = False
+            try:
+                import torch
+                has_cuda = bool(torch.cuda.is_available())
+            except Exception:
+                has_cuda = False
+
+            is_cloud_restricted = bool(
+                os.environ.get('RENDER') or
+                os.environ.get('RENDER_SERVICE_ID') or
+                os.environ.get('PORT') or
+                os.environ.get('LOW_MEMORY_MODE', '0') == '1'
+            )
+            if has_cuda and not is_cloud_restricted:
+                logger.info("[SonaviaOrchestrator] ACE-Step tạm ngắt kết nối (Circuit Breaker), tự động kích hoạt Meta MusicGen Local GPU.")
+                provider = self.fallback_provider
+            else:
+                logger.info("[SonaviaOrchestrator] ACE-Step tạm ngắt kết nối (Circuit Breaker), kích hoạt Sonavia Acoustic Synth trực tiếp.")
+                provider = self.synth_provider
 
         try:
             render_result = provider.generate(
@@ -221,7 +261,7 @@ class SonaviaOrchestrator:
                     render_result = self.fallback_provider.generate(
                         prompt=clean_prompt,
                         lyrics=lyrics if not instrumental else "",
-                        duration=min(duration, 30),
+                        duration=min(duration, 180),
                         genre=config["genre"],
                         mood=config["mood"],
                         vocal_gender=config["vocal_gender"],
@@ -240,7 +280,7 @@ class SonaviaOrchestrator:
                     render_result = self.synth_provider.generate(
                         prompt=clean_prompt,
                         lyrics=lyrics,
-                        duration=min(duration, 60),
+                        duration=min(duration, 180),
                         genre=config["genre"],
                         mood=config["mood"],
                         vocal_gender=config["vocal_gender"],

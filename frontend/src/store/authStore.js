@@ -7,6 +7,8 @@ const useAuthStore = create((set, get) => ({
   loading: true,
 
   login: async (username, password) => {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     const { data } = await api.post('/auth/login/', { username, password })
     localStorage.setItem('access_token', data.access)
     localStorage.setItem('refresh_token', data.refresh)
@@ -15,6 +17,8 @@ const useAuthStore = create((set, get) => ({
   },
 
   register: async (formData) => {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
     const { data } = await api.post('/auth/register/', formData)
     localStorage.setItem('access_token', data.access)
     localStorage.setItem('refresh_token', data.refresh)
@@ -36,6 +40,8 @@ const useAuthStore = create((set, get) => ({
       const { data } = await api.get('/auth/profile/')
       set({ user: data, isAuthenticated: true, loading: false })
     } catch {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
       set({ user: null, isAuthenticated: false, loading: false })
     }
   },

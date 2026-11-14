@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiArrowRight } from 'react-icons/fi'
 import { MdGraphicEq, MdAutoAwesome } from 'react-icons/md'
@@ -18,6 +18,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const { register } = useAuthStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

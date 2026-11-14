@@ -6,7 +6,7 @@ import {
   FiRefreshCw, FiCheck, FiMic, FiZap, FiShare2,
   FiCopy, FiVolume2, FiTrash2, FiPlus, FiSliders,
   FiLayers, FiMusic, FiSend, FiExternalLink,
-  FiImage, FiUploadCloud, FiEye,
+  FiImage, FiUploadCloud, FiEye, FiAlertCircle,
 } from 'react-icons/fi'
 import {
   MdGraphicEq, MdMusicNote, MdAutoAwesome,
@@ -1325,6 +1325,36 @@ export default function CreatePage() {
     toast.success('Đã gỡ ảnh!')
   }
 
+  // Đổi ngôn ngữ trong chế độ Ảnh - tự động cập nhật lại ca từ và tiêu đề
+  const handleImageLanguageChange = async (newLang) => {
+    setImageLanguage(newLang)
+    if (!imageLyrics && !imageAnalysis) return
+
+    if (newLang !== 'auto') {
+      const langName = newLang === 'ko' ? 'Tiếng Hàn' : newLang === 'ja' ? 'Tiếng Nhật' : newLang === 'zh' ? 'Tiếng Trung' : newLang === 'en' ? 'Tiếng Anh' : 'Tiếng Việt'
+      try {
+        toast.loading(`Đang sáng tác lời bài hát theo ảnh (${langName})...`, { id: 'lang-lyrics-change' })
+        const res = await api.post('/ai/lyrics/generate/', {
+          topic: imagePrompt || imageAnalysis?.prompt || 'Melodic atmospheric song',
+          language: newLang,
+          vocal_gender: imageVocal,
+        })
+        if (res.data?.lyrics) {
+          setImageLyrics(res.data.lyrics)
+          if (res.data.title) {
+            setImageTitle(res.data.title)
+          }
+          toast.success(`✨ Đã đổi lời bài hát sang ${langName}!`, { id: 'lang-lyrics-change' })
+        } else {
+          toast.dismiss('lang-lyrics-change')
+        }
+      } catch (err) {
+        console.warn('Lỗi sinh lời theo ngôn ngữ:', err)
+        toast.dismiss('lang-lyrics-change')
+      }
+    }
+  }
+
   // ─── HÀM TẠO BÀI HÁT CHÍNH (Sáng tác & Hát như Suno) ────────────────────────
   const handleCreate = async () => {
     if (isGenerating) return
@@ -1352,6 +1382,23 @@ export default function CreatePage() {
       lyricsToSend = imageInstrumental ? '' : (imageLyrics || imageAnalysis?.lyrics || '').trim()
       isInstru = imageInstrumental
       finalTitle = (imageTitle || imageAnalysis?.title || 'Khúc Ca Từ Bức Ảnh').trim()
+
+      // Kiểm tra xung đột ngôn ngữ: Nếu người dùng chọn tiếng Hàn/Nhật/Trung/Anh nhưng lyricsToSend lại là tiếng Việt (do ảnh tự sinh lúc đầu):
+      const chosenLang = imageLanguage
+      const hasVietnamese = /[áàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệíìỉĩịóòỏõọôốồổỗộơớờởỡợúùủũụưứừửữựýỳỷỹỵđĐ]/i.test(lyricsToSend)
+      const hasHangul = /[\uac00-\ud7af]/.test(lyricsToSend)
+      const hasKana = /[\u3040-\u30ff]/.test(lyricsToSend)
+      const hasHanzi = /[\u4e00-\u9fff]/.test(lyricsToSend)
+
+      if (chosenLang === 'ko' && hasVietnamese && !hasHangul) {
+        lyricsToSend = '' // Để backend orchestrator tự động sinh ca từ tiếng Hàn chuẩn
+      } else if (chosenLang === 'ja' && hasVietnamese && !hasKana) {
+        lyricsToSend = '' // Để backend orchestrator tự động sinh ca từ tiếng Nhật chuẩn
+      } else if (chosenLang === 'zh' && hasVietnamese && !hasHanzi) {
+        lyricsToSend = '' // Để backend orchestrator tự động sinh ca từ tiếng Trung chuẩn
+      } else if (chosenLang === 'en' && hasVietnamese) {
+        lyricsToSend = '' // Để backend orchestrator tự động sinh ca từ tiếng Anh chuẩn
+      }
     } else {
       // Custom mode
       if (!customLyrics.trim() && vocalGender !== 'instrumental') {
@@ -1450,7 +1497,7 @@ export default function CreatePage() {
           palette: imageAnalysis?.palette || [],
           withVocal: !isInstru && (!!resolvedLyrics || mode === 'simple' || mode === 'image'),
           vocalGender: songVocal,
-          engine: 'Sonavia AI',
+          engine: song.provider === 'musicgen' ? 'MusicGen GPU' : (song.provider === 'acestep' ? 'ACE-Step Studio' : 'Sonavia AI'),
           seed: song.seed || seedVal,
           format: song.format || (audioUrl?.toLowerCase().includes('.wav') ? 'wav' : 'mp3'),
 
@@ -1462,6 +1509,13 @@ export default function CreatePage() {
           musicalKey: songKey,
           theme: songTheme,
           createdAt: new Date(),
+        }
+
+        if (song.provider === 'musicgen') {
+          toast('💡 Bài nhạc được tạo bởi Meta MusicGen Local GPU (Melodic Lead). Hệ thống tự động ghép nối mượt mà theo đúng thời lượng bạn chọn.', {
+            icon: 'ℹ️',
+            duration: 6000,
+          })
         }
 
         return newTrack
@@ -1987,7 +2041,7 @@ export default function CreatePage() {
                           <button
                             key={l.key}
                             type="button"
-                            onClick={() => setImageLanguage(l.key)}
+                            onClick={() => handleImageLanguageChange(l.key)}
                             className={clsx(
                               'p-2.5 rounded-xl border text-center transition-all flex flex-col items-center gap-0.5',
                               imageLanguage === l.key
@@ -2131,7 +2185,7 @@ export default function CreatePage() {
                             <button
                               key={l.key}
                               type="button"
-                              onClick={() => setImageLanguage(l.key)}
+                              onClick={() => handleImageLanguageChange(l.key)}
                               className={clsx(
                                 'p-2.5 rounded-xl border text-center transition-all flex flex-col items-center gap-0.5',
                                 imageLanguage === l.key
@@ -2370,32 +2424,46 @@ export default function CreatePage() {
               </div>
 
               {/* Engine switcher */}
-              <div className="flex items-center justify-between pt-2 border-t border-white/[0.04]">
-                <span className="text-xs font-bold text-white/70">Engine AI:</span>
-                <div className="flex gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setEngine('acestep')}
-                    className={clsx(
-                      'px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all',
-                      engine === 'acestep'
-                        ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
-                        : 'bg-white/[0.04] text-white/40'
-                    )}>
-                    <FiMic size={11} /> ACE-Step (Có giọng hát)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEngine('musicgen')}
-                    className={clsx(
-                      'px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all',
-                      engine === 'musicgen'
-                        ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
-                        : 'bg-white/[0.04] text-white/40'
-                    )}>
-                    <FiMusic size={11} /> MusicGen GPU
-                  </button>
+              <div className="pt-2 border-t border-white/[0.04] space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-white/70">Engine AI:</span>
+                    <p className="text-[10px] text-white/30">
+                      {engine === 'acestep' ? 'Cloud GPU: Có giọng ca sĩ, bài hát dài ~3 phút' : 'Local GPU: Offline trên máy, tối đa 30s'}
+                    </p>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setEngine('acestep')}
+                      className={clsx(
+                        'px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all',
+                        engine === 'acestep'
+                          ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
+                          : 'bg-white/[0.04] text-white/40'
+                      )}>
+                      <FiMic size={11} /> ACE-Step (~3 phút)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEngine('musicgen')}
+                      className={clsx(
+                        'px-2.5 py-1 rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all',
+                        engine === 'musicgen'
+                          ? 'bg-indigo-500/30 text-indigo-300 border border-indigo-500/50'
+                          : 'bg-white/[0.04] text-white/40'
+                      )}>
+                      <FiMusic size={11} /> MusicGen GPU (30s)
+                    </button>
+                  </div>
                 </div>
+
+                {engine === 'musicgen' && duration >= 60 && (
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-2 text-[11px] text-amber-200/90 leading-tight">
+                    <FiAlertCircle size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                    <span>Mô hình <b>Meta MusicGen</b> trên GPU máy chỉ hỗ trợ độ dài tối đa <b>30 giây</b>. Hãy chọn <b>ACE-Step (~3 phút)</b> để tạo bài hát đầy đủ {Math.floor(duration / 60)} phút có ca sĩ hát.</span>
+                  </div>
+                )}
               </div>
             </div>
 

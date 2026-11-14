@@ -28,8 +28,8 @@ class TestOptimizedRecommender(unittest.TestCase):
     def setUp(self):
         # Lấy hoặc mock danh sách bài hát
         self.songs = list(Song.objects.filter(is_published=True)[:100])
-        if not self.songs:
-            # Tạo dummy objects nếu DB trống
+        if len(self.songs) < 5:
+            # Tạo dummy objects nếu DB trống hoặc không đủ dữ liệu
             class DummySong:
                 def __init__(self, id, title, genre, mood, tempo=120, play_count=10):
                     self.id = id

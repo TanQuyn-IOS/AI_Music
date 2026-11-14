@@ -14,6 +14,7 @@ import os
 import sys
 import unittest
 from unittest.mock import patch, MagicMock
+import numpy as np
 
 # Thiết lập Django environment
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -49,8 +50,9 @@ class TestPhase23IntelligentOrchestrator(unittest.TestCase):
     # ────────────────────────────────────────────────────────────────────────
     # 1. Phân loại tác vụ: Text-to-Song
     # ────────────────────────────────────────────────────────────────────────
+    @patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True)
     @patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep")
-    def test_text_to_song_task_routing(self, mock_acestep):
+    def test_text_to_song_task_routing(self, mock_acestep, mock_avail):
         """Khi chỉ có prompt, hệ thống tự động sinh lời và định tuyến tác vụ text_to_song."""
         dummy_wav = self._create_dummy_wav(2.0)
         mock_acestep.return_value = {
@@ -79,8 +81,9 @@ class TestPhase23IntelligentOrchestrator(unittest.TestCase):
     # ────────────────────────────────────────────────────────────────────────
     # 2. Phân loại tác vụ: Lyrics-to-Song
     # ────────────────────────────────────────────────────────────────────────
+    @patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True)
     @patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep")
-    def test_lyrics_to_song_task_routing(self, mock_acestep):
+    def test_lyrics_to_song_task_routing(self, mock_acestep, mock_avail):
         """Khi có custom_lyrics, hệ thống bảo tồn nguyên văn ca từ và định tuyến lyrics_to_song."""
         dummy_wav = self._create_dummy_wav(2.0)
         mock_acestep.return_value = {
@@ -109,8 +112,9 @@ class TestPhase23IntelligentOrchestrator(unittest.TestCase):
     # ────────────────────────────────────────────────────────────────────────
     # 3. Phân loại tác vụ: Instrumental
     # ────────────────────────────────────────────────────────────────────────
+    @patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True)
     @patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep")
-    def test_instrumental_task_routing(self, mock_acestep):
+    def test_instrumental_task_routing(self, mock_acestep, mock_avail):
         """Khi yêu cầu instrumental, không sinh ca từ và trả về vocal_type=instrumental."""
         dummy_wav = self._create_dummy_wav(2.0)
         mock_acestep.return_value = {
@@ -142,15 +146,18 @@ class TestPhase23IntelligentOrchestrator(unittest.TestCase):
         dummy_wav = self._create_dummy_wav(2.0)
 
         # Tier 1 fail
-        with patch.object(sonavia_orchestrator.primary_provider, "generate", side_effect=RuntimeError("Cloud space timeout")):
-            # Tier 3 (MusicGen) thành công
-            with patch("apps.ai_engine.music_generator.generate_music", return_value=(dummy_wav, 32000)):
-                res = sonavia_orchestrator.generate_song(
-                    prompt="Bài hát trữ tình",
-                    language="vi",
-                    custom_lyrics=self.benchmark_lyrics,
-                    vocal="female",
-                )
+        with patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True):
+            with patch.object(sonavia_orchestrator.primary_provider, "generate", side_effect=RuntimeError("Cloud space timeout")):
+                # Tier 3 (MusicGen) thành công
+                with patch("apps.ai_engine.music_generator.generate_music", return_value=(dummy_wav, 32000)), \
+                     patch("apps.ai_engine.music_generator.generate_long_music", return_value=(np.zeros(32000 * 2, dtype=np.float32), 32000)):
+                    res = sonavia_orchestrator.generate_song(
+                        prompt="Bài hát trữ tình",
+                        language="vi",
+                        custom_lyrics=self.benchmark_lyrics,
+                        vocal="female",
+                        duration=30,
+                    )
 
                 # Bark tuyệt đối không bị gọi
                 mock_bark_bytes.assert_not_called()
@@ -164,8 +171,9 @@ class TestPhase23IntelligentOrchestrator(unittest.TestCase):
     # ────────────────────────────────────────────────────────────────────────
     # 5. Tương thích API /api/music/generate/ (MusicGenerateUnifiedView)
     # ────────────────────────────────────────────────────────────────────────
+    @patch.object(sonavia_orchestrator.primary_provider, "is_available", return_value=True)
     @patch("apps.ai_engine.providers.acestep_provider.generate_with_acestep")
-    def test_music_generate_unified_api_response(self, mock_acestep):
+    def test_music_generate_unified_api_response(self, mock_acestep, mock_avail):
         """API /api/music/generate/ trả về đầy đủ metadata chuẩn hóa mới mà không phá vỡ schema cũ."""
         dummy_wav = self._create_dummy_wav(2.0)
         mock_acestep.return_value = {

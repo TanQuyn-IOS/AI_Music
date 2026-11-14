@@ -12,6 +12,7 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -27,6 +28,7 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []
 
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
@@ -41,6 +43,9 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
     def post(self, request):
         try:
             refresh_token = request.data.get('refresh')

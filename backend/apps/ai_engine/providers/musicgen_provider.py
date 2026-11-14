@@ -56,16 +56,42 @@ class MusicGenProvider(BaseMusicProvider):
         final_prompt = f"{base_prompt}, {melody_hint}"
         if lyric_hint:
             final_prompt = f"{final_prompt}, lyric themes: {lyric_hint}"
-        dur = min(duration, 30)
+        dur_target = max(10, min(int(duration), 180))
 
-        gen_out = generate_music(
-            prompt=final_prompt,
-            duration=dur,
-            guidance_scale=min(guidance_scale, 3.8),
-            temperature=0.9,
-            model_name=kwargs.get("model", "facebook/musicgen-small"),
-        )
-        wav_bytes = gen_out[0] if isinstance(gen_out, (tuple, list)) else gen_out
+        if dur_target > 30:
+            import numpy as np
+            import soundfile as sf
+            from ..music_generator import generate_long_music
+
+            logger.info(f"[MusicGenProvider] Tạo nhạc đa đoạn thời lượng dài: {dur_target}s...")
+            audio_arr, sr = generate_long_music(
+                prompt=final_prompt,
+                total_duration=dur_target,
+                model_name=kwargs.get("model", "facebook/musicgen-small"),
+                guidance_scale=min(guidance_scale, 3.8),
+                temperature=0.9,
+            )
+            try:
+                from ..audio_mastering import master_audio_array
+                audio_arr = master_audio_array(audio_arr, sr, is_vietnamese=True, target_peak=0.891)
+            except Exception:
+                if np.abs(audio_arr).max() > 0:
+                    audio_arr = audio_arr / np.abs(audio_arr).max() * 0.9
+            buf = io.BytesIO()
+            sf.write(buf, audio_arr, sr, format="WAV")
+            wav_bytes = buf.getvalue()
+            dur = dur_target
+        else:
+            from ..music_generator import generate_music
+            dur = dur_target
+            gen_out = generate_music(
+                prompt=final_prompt,
+                duration=dur,
+                guidance_scale=min(guidance_scale, 3.8),
+                temperature=0.9,
+                model_name=kwargs.get("model", "facebook/musicgen-small"),
+            )
+            wav_bytes = gen_out[0] if isinstance(gen_out, (tuple, list)) else gen_out
 
         # Phase 2.2A: Loại bỏ Bark hoàn toàn khỏi MusicGenProvider.
         # MusicGen là mô hình tạo nhạc nền (Instrumental / Melodic Lead).

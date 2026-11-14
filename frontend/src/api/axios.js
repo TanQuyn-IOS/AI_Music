@@ -7,10 +7,28 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
+// Kiểm tra các endpoint xác thực công khai không được đính kèm token cũ/hết hạn
+const isPublicAuthEndpoint = (url) => {
+  if (!url) return false
+  return url.includes('/auth/login') ||
+         url.includes('/auth/register') ||
+         url.includes('/token/refresh')
+}
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  if (!isPublicAuthEndpoint(config.url)) {
+    const token = localStorage.getItem('access_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+  } else {
+    // Đảm bảo không vô tình mang theo token cũ vào request login / register
+    if (config.headers?.Authorization) {
+      delete config.headers.Authorization
+    }
+    if (config.headers?.authorization) {
+      delete config.headers.authorization
+    }
   }
   // Nếu request mang FormData, xóa Content-Type cố định để browser/Axios tự động sinh boundary phân tách multipart chuẩn
   if (config.data && (typeof FormData !== 'undefined' && config.data instanceof FormData)) {
@@ -30,9 +48,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const original = error.config
-    const isAuthEndpoint = original?.url?.includes('/auth/login') ||
-                           original?.url?.includes('/auth/register') ||
-                           original?.url?.includes('/token/refresh')
+    const isAuthEndpoint = isPublicAuthEndpoint(original?.url)
 
     if (error.response?.status === 401 && !original?._retry && !isAuthEndpoint) {
       original._retry = true

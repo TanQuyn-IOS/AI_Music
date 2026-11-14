@@ -119,7 +119,7 @@ class AcousticSynthProvider(BaseMusicProvider):
         logger.info(f"[AcousticSynthProvider] Khởi tạo âm thanh nhạc lý đa âm: genre={genre}, mood={mood}, duration={duration}s")
 
         sr = 44100
-        dur_target = max(15, min(int(duration), 120))  # 15s - 120s
+        dur_target = max(15, min(int(duration), 180))  # 15s - 180s (lên tới 3 phút)
         total_samples = int(sr * dur_target)
 
         # 1. Xác định gam, nhịp độ và nốt chủ

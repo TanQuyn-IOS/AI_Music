@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiArrowRight, FiCheck } from 'react-icons/fi'
 import { MdGraphicEq, MdAutoAwesome } from 'react-icons/md'
@@ -11,6 +11,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const { login } = useAuthStore()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    // Dọn sạch token cũ bị hết hạn khi vào trang đăng nhập
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -37,10 +43,14 @@ export default function LoginPage() {
         return
       }
       const data = err.response?.data
-      const msg = data?.non_field_errors?.[0]
+      let msg = data?.non_field_errors?.[0]
+        || data?.detail
         || (typeof data === 'string' ? data : null)
         || (data && typeof data === 'object' ? Object.values(data).flat()[0] : null)
         || 'Sai tên đăng nhập hoặc mật khẩu'
+      if (typeof msg === 'string' && msg.includes('token not valid')) {
+        msg = 'Phiên đăng nhập cũ đã hết hạn. Vui lòng bấm đăng nhập lại.'
+      }
       toast.error(msg)
     } finally {
       setLoading(false)

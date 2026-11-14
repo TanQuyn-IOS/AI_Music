@@ -755,11 +755,11 @@ def generate_with_acestep(
                 time.sleep(2)
                 continue
             else:
-                record_acestep_failure(cooldown_seconds=1800.0)
+                record_acestep_failure(cooldown_seconds=60.0)
                 raise last_error
 
     if result is None:
-        record_acestep_failure(cooldown_seconds=1800.0)
+        record_acestep_failure(cooldown_seconds=60.0)
         raise last_error
 
     elapsed = time.time() - t0

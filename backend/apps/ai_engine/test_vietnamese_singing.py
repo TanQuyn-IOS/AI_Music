@@ -192,12 +192,14 @@ class VietnameseSingingVoiceTests(TestCase):
         """Xử lý biên an toàn nếu provider bị timeout."""
         # Khi ACE-Step bị timeout, Orchestrator fallback mượt mà sang Melodic Lead mà không crash
         with patch.object(sonavia_orchestrator.primary_provider, "generate", side_effect=TimeoutError("Request timed out")):
-            with patch("apps.ai_engine.music_generator.generate_music", return_value=(b"RIFFdummywavdata", 32000)):
+            with patch("apps.ai_engine.music_generator.generate_music", return_value=(b"RIFFdummywavdata", 32000)), \
+                 patch("apps.ai_engine.music_generator.generate_long_music", return_value=(np.zeros(32000 * 2, dtype=np.float32), 32000)):
                 res = sonavia_orchestrator.generate_song(
                     prompt="Bài hát thử nghiệm timeout",
                     language="vi",
                     custom_lyrics="Khúc nhạc êm đềm trong chiều vắng",
                     vocal="female",
+                    duration=30,
                 )
                 self.assertIsNotNone(res)
                 self.assertEqual(res["provider"], "musicgen")
